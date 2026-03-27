@@ -385,16 +385,17 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
         </div>
 
       <div className="bg-white border border-border/40 shadow-sm rounded-xl overflow-hidden print:hidden">
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <table className="w-full text-xs sm:text-sm text-left min-w-[500px]">
+        {/* Desktop Table — hidden on mobile */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-sm text-left">
             <thead className="bg-secondary/50 text-muted-foreground border-b border-border/60">
               <tr>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium">Désignation</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-20 sm:w-32">Qté</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-16 sm:w-24">Unité</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-20 sm:w-32">PU HT (€)</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-24 sm:w-32 text-right">Montant HT</th>
-                <th className="px-1 sm:px-4 py-2 sm:py-3 font-medium w-10 sm:w-12 text-center print:hidden"></th>
+                <th className="px-4 py-3 font-medium">Désignation</th>
+                <th className="px-4 py-3 font-medium w-32">Quantité</th>
+                <th className="px-4 py-3 font-medium w-24">Unité</th>
+                <th className="px-4 py-3 font-medium w-32">PU HT (€)</th>
+                <th className="px-4 py-3 font-medium w-32 text-right">Montant HT</th>
+                <th className="px-4 py-3 font-medium w-12 text-center print:hidden"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
@@ -402,14 +403,14 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
                 const montant = (lot.quantite || 0) * (lot.prix_unitaire_ht || 0);
                 return (
                   <tr key={lot.id} className="group hover:bg-secondary/20 transition-colors">
-                    <td className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-anthracite">
+                    <td className="px-4 py-3 font-medium text-anthracite">
                       <Input
                         value={lot.designation}
                         onChange={(e) => setLots(lots.map(l => l.id === lot.id ? { ...l, designation: e.target.value } : l))}
-                        className="h-8 text-xs sm:text-sm shadow-none border-transparent focus-visible:border-primary/30"
+                        className="h-8 shadow-none border-transparent focus-visible:border-primary/30"
                       />
                     </td>
-                    <td className="px-2 sm:px-4 py-2 sm:py-3">
+                    <td className="px-4 py-3">
                       <Input
                         type="number"
                         min="0"
@@ -443,12 +444,77 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
               })}
             </tbody>
           </table>
-          <div className="p-4 border-t border-border/40 bg-secondary/10 print:hidden">
-            <Button onClick={handleAddLine} variant="outline" className="w-full border-dashed border-2 text-steel hover:bg-steel/5 h-10 transition-colors">
-              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-              Ajouter une ligne de travaux vierge
-            </Button>
-          </div>
+        </div>
+
+        {/* Mobile Card Layout — visible only on small screens */}
+        <div className="sm:hidden divide-y divide-border/30">
+          {lots.map((lot, index) => {
+            const montant = (lot.quantite || 0) * (lot.prix_unitaire_ht || 0);
+            return (
+              <div key={lot.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-xs font-medium text-muted-foreground shrink-0 pt-2">#{index + 1}</span>
+                  <div className="flex-1">
+                    <textarea
+                      value={lot.designation}
+                      onChange={(e) => setLots(lots.map(l => l.id === lot.id ? { ...l, designation: e.target.value } : l))}
+                      rows={2}
+                      className="w-full text-sm font-medium text-anthracite bg-secondary/30 border border-border/40 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-steel/30 focus:border-steel/40"
+                      placeholder="Désignation..."
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleDeleteLine(lot.id)}
+                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Qté</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={lot.quantite}
+                      onChange={(e) => handleQuantityChange(lot.id, parseFloat(e.target.value) || 0)}
+                      className="h-10 text-sm shadow-none border-border/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Unité</label>
+                    <div className="h-10 flex items-center text-sm text-muted-foreground bg-secondary/20 border border-border/30 rounded-md px-3">
+                      {lot.unite}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">PU HT €</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={lot.prix_unitaire_ht}
+                      onChange={(e) => handlePriceChange(lot.id, parseFloat(e.target.value) || 0)}
+                      className="h-10 text-sm shadow-none border-border/50"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <span className="text-sm font-bold text-steel tabular-nums">
+                    = {(Math.round(montant * 100)/100).toFixed(2)} €
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="p-4 border-t border-border/40 bg-secondary/10 print:hidden">
+          <Button onClick={handleAddLine} variant="outline" className="w-full border-dashed border-2 text-steel hover:bg-steel/5 h-10 transition-colors">
+            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Ajouter une ligne
+          </Button>
         </div>
 
         {/* Totals Section */}

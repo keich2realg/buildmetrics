@@ -565,7 +565,7 @@ export default function DashboardPage() {
 
       {/* ── Submit Button ── */}
       <div className="space-y-3 mb-8 print:hidden">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           <Button
             size="lg"
             disabled={!canSubmit || isUploading}
@@ -809,7 +809,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="overflow-x-auto print:hidden">
+            {/* Desktop Table — hidden on mobile */}
+            <div className="hidden sm:block overflow-x-auto print:hidden">
               <table className="w-full text-sm text-left">
                 <thead className="bg-secondary/50 text-muted-foreground border-b border-border/60">
                   <tr>
@@ -869,6 +870,62 @@ export default function DashboardPage() {
               </table>
             </div>
 
+            {/* Mobile Card Layout — visible only on small screens */}
+            <div className="sm:hidden divide-y divide-border/30 print:hidden">
+              {lots.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  Aucun lot extrait.
+                </div>
+              ) : (
+                lots.map((lot, index) => {
+                  const montant = (lot.quantite || 0) * (lot.prix_unitaire_ht || 0);
+                  return (
+                    <div key={lot.id} className="p-4 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs font-medium text-muted-foreground shrink-0 pt-0.5">#{index + 1}</span>
+                        <p className="text-sm font-medium text-anthracite leading-snug">{lot.designation}</p>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Qté</label>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={lot.quantite === 0 ? "" : lot.quantite}
+                            onChange={(e) => updateLot(lot.id, "quantite", parseFloat(e.target.value) || 0)}
+                            className="h-10 text-sm shadow-none border-border/50"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Unité</label>
+                          <div className="h-10 flex items-center text-sm text-muted-foreground bg-secondary/20 border border-border/30 rounded-md px-3">
+                            {lot.unite}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">PU HT €</label>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={lot.prix_unitaire_ht === 0 ? "" : lot.prix_unitaire_ht}
+                            onChange={(e) => updateLot(lot.id, "prix_unitaire_ht", parseFloat(e.target.value) || 0)}
+                            className="h-10 text-sm shadow-none border-border/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <span className="text-sm font-bold text-steel tabular-nums">
+                          = {montant.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
             {/* Totals Section */}
             <div className="bg-secondary/30 p-4 sm:p-6 border-t border-border/60 print:hidden">
               <div className="flex flex-col sm:flex-row justify-between gap-6">
@@ -910,7 +967,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Actions */}
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-border/40 print:hidden">
+              <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-border/40 print:hidden">
                 <Button 
                   onClick={handleExportExcel}
                   variant="outline"
