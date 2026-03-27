@@ -18,7 +18,7 @@ export function Pricing({ urls, isLoggedIn }: { urls?: any, isLoggedIn?: boolean
   const pricingPlans = [
     {
       name: "Gratuit",
-      subtitle: "Découverte / Bêta",
+      subtitle: "Découverte",
       priceMonthly: 0,
       priceAnnualLabel: "0",
       features: [
@@ -67,6 +67,12 @@ export function Pricing({ urls, isLoggedIn }: { urls?: any, isLoggedIn?: boolean
     },
   ];
 
+  // Beta deadline: April 16, 2026
+  const BETA_DEADLINE = new Date('2026-04-16T23:59:59');
+  const now = new Date();
+  const isBetaOpen = now < BETA_DEADLINE;
+  const daysLeft = isBetaOpen ? Math.ceil((BETA_DEADLINE.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+
   return (
     <section id="pricing" className="bg-secondary/50 border-t border-border/60">
       <div className="mx-auto max-w-5xl px-6 py-24">
@@ -108,7 +114,65 @@ export function Pricing({ urls, isLoggedIn }: { urls?: any, isLoggedIn?: boolean
         </div>
 
         {/* Grille Tarifaire */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-start pt-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-start pt-6">
+          {/* Beta Card — only shown if before deadline */}
+          {isBetaOpen && (
+            <Card className="relative flex flex-col transition-all duration-300 border-purple-400 border-2 bg-gradient-to-b from-purple-50 to-white shadow-lg ring-1 ring-purple-300/30">
+              <div className="absolute top-4 right-4 z-20">
+                <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-purple-700 border border-purple-200">
+                  🧪 Bêta
+                </span>
+              </div>
+              <CardHeader className="pb-4 pt-8">
+                <CardTitle className="text-2xl font-bold text-purple-700">
+                  Bêta-testeur
+                </CardTitle>
+                <CardDescription className="text-purple-600/80 font-medium mt-1">
+                  Accès anticipé — Offre limitée
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 pb-6">
+                <div className="mb-2 min-h-[80px]">
+                  <div className="flex items-baseline">
+                    <span className="text-4xl font-extrabold text-anthracite tracking-tight">0 €</span>
+                  </div>
+                  <div className="mt-2 text-sm text-purple-600 font-semibold flex items-center gap-1.5">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    Plus que {daysLeft} jour{daysLeft > 1 ? 's' : ''} pour s&apos;inscrire
+                  </div>
+                </div>
+                <div className="w-full h-px border-t border-purple-200/50 my-6"></div>
+                <ul className="space-y-4">
+                  {[
+                    "5 crédits totaux (IA + manuel)",
+                    "Toutes les fonctionnalités Pro incluses",
+                    "Export PDF personnalisé (Logo + Couleur)",
+                    "Export Excel des données",
+                    "1 mois Pro offert après les 5 crédits",
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-anthracite/90 font-medium">
+                      <div className="mt-0.5 rounded-full p-0.5 shrink-0 bg-purple-100 text-purple-600">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                      </div>
+                      <span className="leading-snug">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter className="pt-2 pb-8">
+                <Link href="/login" className="w-full">
+                  <Button className="w-full cursor-pointer py-6 font-semibold text-base shadow-md bg-purple-600 hover:bg-purple-700 text-white">
+                    Rejoindre la bêta gratuitement
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          )}
+
           {pricingPlans.map((plan) => {
             // Configuration de style basée sur le theme
             let borderStyle = "border-border hover:border-steel/30";

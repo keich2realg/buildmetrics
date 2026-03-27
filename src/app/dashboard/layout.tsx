@@ -53,6 +53,19 @@ export default async function DashboardLayout({
   const billingInterval = profile?.billing_interval || 'monthly';
   const annualMultiplier = billingInterval === 'yearly' ? 12 : 1;
 
+  // ── Auto-enroll new users as beta before deadline ──
+  const BETA_DEADLINE = new Date('2026-04-16T23:59:59');
+  if (!profile?.is_beta && tier === 'decouverte' && !profile?.subscription_status && new Date() < BETA_DEADLINE) {
+    const { count: totalProjects } = await supabase.from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user?.id);
+    if ((totalProjects || 0) === 0) {
+      await supabase.from('users').update({ is_beta: true }).eq('id', user?.id);
+      // Reflect in current session
+      if (profile) (profile as any).is_beta = true;
+    }
+  }
+
   // ── Trial Pro expiration check ──
   // If user is on trial Pro and the trial has expired, downgrade to decouverte
   if (profile?.subscription_status === 'trial' && profile?.subscription_ends_at) {
