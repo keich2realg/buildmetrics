@@ -109,7 +109,7 @@ export default function SettingsPage() {
   const currentPlan = profile?.plan_tier === "pro" ? "Plan Pro" : profile?.plan_tier === "artisan" ? "Plan Artisan" : "Plan Découverte (Gratuit)";
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
       {/* En-tête de la page */}
       <div>
         <h1 className="text-2xl font-bold text-anthracite tracking-tight mb-1">

@@ -32,7 +32,7 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-white/80 backdrop-blur-lg">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-steel text-white font-bold text-sm">
               BM
@@ -75,8 +75,8 @@ export default async function Home() {
         <div className="absolute top-20 -left-32 w-96 h-96 bg-steel/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 -right-32 w-96 h-96 bg-steel-light/10 rounded-full blur-3xl" />
 
-        <div className="relative z-10 mx-auto max-w-4xl px-6 py-24 md:py-32 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-steel/20 bg-steel/5 px-4 py-1.5 text-sm text-steel-dark mb-8">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 py-16 sm:py-24 md:py-32 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-steel/20 bg-steel/5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-steel-dark mb-6 sm:mb-8">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-steel opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-steel" />
@@ -84,7 +84,7 @@ export default async function Home() {
             Propulsé par l&apos;IA
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-anthracite leading-[1.1] mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight text-anthracite leading-[1.1] mb-4 sm:mb-6">
             Chiffrez vos plans
             <br />
             architecturaux en{" "}

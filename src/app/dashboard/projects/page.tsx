@@ -10,7 +10,6 @@ import { getProjects, deleteProject } from "./actions";
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [debugLog, setDebugLog] = useState<any>(null);
 
   useEffect(() => {
     loadProjects();
@@ -36,19 +35,20 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10 space-y-8">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-anthracite tracking-tight mb-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-anthracite tracking-tight mb-1">
             Projets & Devis
           </h1>
-          <p className="text-muted-foreground">
-            L'historique complet de vos chiffrages générés par l'Intelligence Artificielle.
+          <p className="text-sm sm:text-base text-muted-foreground">
+            L&apos;historique complet de vos chiffrages.
           </p>
         </div>
       </div>
 
-      <Card className="border-border/60 shadow-sm overflow-hidden bg-white">
+      {/* Desktop Table — hidden on mobile */}
+      <Card className="border-border/60 shadow-sm overflow-hidden bg-white hidden sm:block">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-secondary/50">
@@ -81,8 +81,7 @@ export default function ProjectsPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                projects.map((proj) => {  
-                  // Sécurisation : gérer le JSON peu importe son format (string ou objet natif)
+                projects.map((proj) => {
                   const rawResults = typeof proj.results === 'string' ? JSON.parse(proj.results || "[]") : proj.results;
                   const hasResults = rawResults && Array.isArray(rawResults);
                   const legacyTotalHT = hasResults ? rawResults.reduce((acc: number, lot: any) => acc + ((lot.quantite || 0) * (lot.prix_unitaire_ht || 0)), 0) : 0;
@@ -124,6 +123,64 @@ export default function ProjectsPage() {
           </Table>
         </div>
       </Card>
+
+      {/* Mobile Card Layout — visible only on small screens */}
+      <div className="sm:hidden space-y-3">
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <svg className="h-8 w-8 animate-spin text-steel opacity-80" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="py-12 text-center bg-secondary/10 rounded-xl border border-border/40">
+            <svg className="mx-auto h-10 w-10 text-steel/40 mb-3" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <p className="text-muted-foreground text-sm">Aucun devis enregistré.</p>
+          </div>
+        ) : (
+          projects.map((proj) => {
+            const rawResults = typeof proj.results === 'string' ? JSON.parse(proj.results || "[]") : proj.results;
+            const hasResults = rawResults && Array.isArray(rawResults);
+            const legacyTotalHT = hasResults ? rawResults.reduce((acc: number, lot: any) => acc + ((lot.quantite || 0) * (lot.prix_unitaire_ht || 0)), 0) : 0;
+            const displayTotal = Number(proj.total_ht || legacyTotalHT);
+            const displayLines = proj.line_count || (hasResults ? rawResults.length : 0);
+
+            return (
+              <div key={proj.id} className="bg-white rounded-xl border border-border/50 shadow-sm p-4 active:bg-secondary/20 transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-anthracite text-sm truncate">
+                      {proj.project_name || "Sans nom"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {proj.client_name || "Non spécifié"} • {new Date(proj.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <p className="text-sm font-bold text-steel tabular-nums whitespace-nowrap">
+                    {displayTotal.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+                  </p>
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
+                  <span className="text-xs text-muted-foreground">{displayLines} ligne{displayLines !== 1 ? 's' : ''}</span>
+                  <div className="flex items-center gap-1">
+                    <Link href={`/dashboard/projects/${proj.id}`}>
+                      <button className="p-2.5 text-steel hover:bg-steel/10 transition-colors rounded-lg cursor-pointer" title="Ouvrir">
+                        <Eye className="h-4.5 w-4.5" />
+                      </button>
+                    </Link>
+                    <button onClick={() => handleDelete(proj.id)} className="p-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg cursor-pointer" title="Supprimer">
+                      <Trash2 className="h-4.5 w-4.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

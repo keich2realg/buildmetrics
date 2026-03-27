@@ -103,9 +103,23 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
+    /* Safe area for iPhone notch / home indicator */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  /* Minimum touch targets on mobile */
+  @media (max-width: 640px) {
+    button, a[role="button"], [type="button"] {
+      min-height: 44px;
+    }
+    input, textarea, select {
+      font-size: 16px; /* Prevent iOS zoom on focus */
+    }
   }
 }
 

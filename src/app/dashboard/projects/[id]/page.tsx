@@ -310,12 +310,12 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
         </div>
       </div>
 
-      <div className="mb-6 flex items-center justify-between print:hidden">
-        <Button variant="ghost" onClick={() => router.push("/dashboard/projects")} className="pl-0 text-muted-foreground hover:text-foreground">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
+        <Button variant="ghost" onClick={() => router.push("/dashboard/projects")} className="pl-0 text-muted-foreground hover:text-foreground self-start">
           <ChevronLeft className="mr-2 h-4 w-4" />
           Retour aux projets
         </Button>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <Button onClick={handleSave} variant="outline" className="gap-2" disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Sauvegarder
@@ -333,13 +333,13 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
         </div>
       </div>
 
-      <div className="mb-6 bg-white border border-border/40 rounded-xl p-6 shadow-sm print:hidden">
-        <h1 className="text-2xl font-bold text-anthracite mb-2">{projectName || "Devis sans nom"}</h1>
-        <p className="text-muted-foreground">Client: {clientName || "Non spécifié"} • Lieu: {city || "Non spécifié"}</p>
+      <div className="mb-4 sm:mb-6 bg-white border border-border/40 rounded-xl p-4 sm:p-6 shadow-sm print:hidden">
+        <h1 className="text-lg sm:text-2xl font-bold text-anthracite mb-1 sm:mb-2">{projectName || "Devis sans nom"}</h1>
+        <p className="text-sm text-muted-foreground">Client: {clientName || "Non spécifié"} • Lieu: {city || "Non spécifié"}</p>
       </div>
 
       {/* Editable Client Info Card */}
-      <div className="mb-6 bg-white border border-border/40 rounded-xl p-6 shadow-sm print:hidden">
+      <div className="mb-4 sm:mb-6 bg-white border border-border/40 rounded-xl p-4 sm:p-6 shadow-sm print:hidden">
           <div className="flex items-center gap-2 mb-4">
             <svg className="h-5 w-5 text-steel" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
