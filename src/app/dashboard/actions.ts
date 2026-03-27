@@ -11,7 +11,7 @@ export async function getUserProfile() {
 
   const { data: profile } = await supabase
     .from("users")
-    .select("plan_tier, email, first_name, last_name, company_name, address, siret, logo_url, brand_hex_color, customer_portal_url, subscription_id, billing_interval, subscription_ends_at, subscription_status")
+    .select("plan_tier, email, first_name, last_name, company_name, address, siret, logo_url, brand_hex_color, customer_portal_url, subscription_id, billing_interval, subscription_ends_at, subscription_status, is_beta")
     .eq("id", user.id)
     .single();
 
@@ -34,13 +34,31 @@ export async function uploadPlanAndCreateProject(formData: FormData) {
   // Check paywall limits via strict Postgres aggregation
   const { data: profile } = await supabase
     .from("users")
-    .select("plan_tier, email, billing_interval")
+    .select("plan_tier, email, billing_interval, is_beta")
     .eq("id", user.id)
     .single();
 
   const tier = profile?.plan_tier || 'decouverte';
 
-  if (tier === 'decouverte') {
+  // ── Beta credit enforcement: 5 total (IA + manual), no free ──
+  if (profile?.is_beta) {
+    const { count: betaTotal } = await supabase.from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .neq('file_url', 'deleted');
+    if ((betaTotal || 0) >= 5) {
+      // Auto-graduate to Pro trial
+      const trialEnd = new Date();
+      trialEnd.setMonth(trialEnd.getMonth() + 1);
+      await supabase.from('users').update({
+        is_beta: false,
+        plan_tier: 'pro',
+        subscription_status: 'trial',
+        subscription_ends_at: trialEnd.toISOString(),
+      }).eq('id', user.id);
+      return { error: "BETA_EXHAUSTED", message: "Vos 5 cr\u00e9dits b\u00eata sont \u00e9puis\u00e9s. Vous b\u00e9n\u00e9ficiez maintenant d'un mois d'acc\u00e8s Pro gratuit !" };
+    }
+  } else if (tier === 'decouverte') {
     const { count } = await supabase.from('projects').select('*', { count: 'exact', head: true }).eq('user_id', user.id).neq('file_url', 'manual').neq('file_url', 'deleted');
       if ((count || 0) >= 3) {
         return { error: "LIMIT_REACHED", message: "Vous avez atteint la limite de 3 devis gratuits (Plan Découverte). Passez au plan Artisan ou Pro pour continuer." };
@@ -190,11 +208,32 @@ export async function createManualProject(formData: FormData) {
   const projectName = formData.get("projectName") as string;
   const tva = formData.get("tva") as string;
 
-  const { data: userProfile } = await supabase.from('users').select('plan_tier').eq('id', user.id).single();
+  const { data: userProfile } = await supabase.from('users').select('plan_tier, is_beta').eq('id', user.id).single();
   const tier = userProfile?.plan_tier || 'decouverte';
 
-  if (tier !== 'pro') {
-    return { error: "La création manuelle de devis est une fonctionnalité exclusive au plan PRO." };
+  // Allow for Pro AND Beta users
+  if (tier !== 'pro' && !userProfile?.is_beta) {
+    return { error: "La cr\u00e9ation manuelle de devis est une fonctionnalit\u00e9 exclusive au plan PRO et B\u00eata." };
+  }
+
+  // Beta credit check before manual creation
+  if (userProfile?.is_beta) {
+    const { count: betaTotal } = await supabase.from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .neq('file_url', 'deleted');
+    if ((betaTotal || 0) >= 5) {
+      // Auto-graduate to Pro trial
+      const trialEnd = new Date();
+      trialEnd.setMonth(trialEnd.getMonth() + 1);
+      await supabase.from('users').update({
+        is_beta: false,
+        plan_tier: 'pro',
+        subscription_status: 'trial',
+        subscription_ends_at: trialEnd.toISOString(),
+      }).eq('id', user.id);
+      return { error: "BETA_EXHAUSTED", message: "Vos 5 cr\u00e9dits b\u00eata sont \u00e9puis\u00e9s. Vous b\u00e9n\u00e9ficiez maintenant d'un mois d'acc\u00e8s Pro gratuit !" };
+    }
   }
 
   // Insert Blank Project

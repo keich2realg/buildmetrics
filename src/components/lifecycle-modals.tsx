@@ -7,7 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export function LifecycleModals() {
-  const [modal, setModal] = useState<"welcome" | "upgraded" | "cancelled" | "expiry" | null>(null);
+  const [modal, setModal] = useState<"welcome" | "upgraded" | "cancelled" | "expiry" | "beta_welcome" | "beta_goodbye" | null>(null);
   const [mounted, setMounted] = useState(false);
   const [tier, setTier] = useState<string>("decouverte");
 
@@ -23,7 +23,7 @@ export function LifecycleModals() {
       const userId = session.user.id;
       
       // Fetch initial DB state
-      const { data: user } = await supabase.from('users').select('plan_tier, subscription_status').eq('id', userId).single();
+      const { data: user } = await supabase.from('users').select('plan_tier, subscription_status, is_beta').eq('id', userId).single();
       const { count } = await supabase.from('projects').select('*', { count: 'exact', head: true }).eq('user_id', userId);
       
       const currentTier = user?.plan_tier || 'decouverte';
@@ -36,8 +36,17 @@ export function LifecycleModals() {
       // Check Startup conditions
       if (!savedTier) {
         // Fresh browser session
-        if (currentTier === "pro" || currentTier === "artisan") {
-          setModal("upgraded");
+        if (user?.is_beta && !localStorage.getItem("bm_beta_welcome")) {
+          setModal("beta_welcome");
+          localStorage.setItem("bm_beta_welcome", "true");
+        } else if (currentTier === "pro" || currentTier === "artisan") {
+          // Check if this is a trial (post-beta graduation)
+          if (user?.subscription_status === 'trial' && !localStorage.getItem("bm_beta_goodbye")) {
+            setModal("beta_goodbye");
+            localStorage.setItem("bm_beta_goodbye", "true");
+          } else {
+            setModal("upgraded");
+          }
         } else if (projectCount === 0 && !hasSeenWelcome) {
           setModal("welcome");
         }
@@ -276,6 +285,59 @@ export function LifecycleModals() {
               }} className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-md transition-all duration-300">
                 Compris, merci
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={modal === "beta_welcome"} onOpenChange={(v) => !v && setModal(null)}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 shadow-2xl">
+          <div className="bg-purple-600 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-purple-700 to-purple-400 opacity-50"></div>
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 relative z-10">
+              <span className="text-3xl">🧪</span>
+            </div>
+            <DialogTitle className="text-2xl text-white font-bold tracking-tight relative z-10">Bienvenue Bêta-testeur !</DialogTitle>
+          </div>
+          <div className="p-6 space-y-4 bg-white">
+            <p className="text-anthracite text-center text-base leading-relaxed">
+              Merci de participer à la bêta de <strong>BuildMetrics</strong> ! Vous disposez de <strong className="text-purple-700">5 crédits</strong> pour tester toutes les fonctionnalités Pro.
+            </p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>✨ Chaque analyse IA ou devis manuel consomme 1 crédit</p>
+              <p>🚀 Une fois vos 5 crédits utilisés, vous recevrez <strong className="text-anthracite">1 mois d’accès Pro gratuit</strong></p>
+            </div>
+            <div className="mt-6 w-full">
+              <Button onClick={() => setModal(null)} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 text-lg shadow-md transition-all duration-300">
+                Commencer mes tests
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={modal === "beta_goodbye"} onOpenChange={(v) => !v && setModal(null)}>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 shadow-2xl">
+          <div className="bg-gradient-to-br from-steel to-steel-dark p-6 flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">🎁</span>
+            </div>
+            <DialogTitle className="text-2xl text-white font-bold tracking-tight">Merci pour vos retours !</DialogTitle>
+          </div>
+          <div className="p-6 space-y-4 bg-white">
+            <p className="text-anthracite text-center text-base leading-relaxed">
+              Vos <strong>5 crédits bêta</strong> ont été utilisés. En guise de remerciement, vous bénéficiez d’un <strong className="text-steel">mois d’accès Pro gratuit</strong> !
+            </p>
+            <p className="text-muted-foreground text-center text-sm leading-relaxed">
+              Profitez de toutes les fonctionnalités sans limite pendant 30 jours. À la fin de cette période, abonnez-vous pour conserver votre accès.
+            </p>
+            <div className="flex flex-col gap-3 mt-6 w-full">
+              <Button onClick={() => setModal(null)} className="w-full bg-steel hover:bg-steel-dark text-white font-semibold py-6 text-lg shadow-md transition-all duration-300">
+                Explorer mon accès Pro
+              </Button>
+              <Link href="/#pricing" onClick={() => setModal(null)} className="w-full text-center text-sm text-muted-foreground hover:text-steel transition-colors underline-offset-4 hover:underline">
+                Voir les forfaits d’abonnement
+              </Link>
             </div>
           </div>
         </DialogContent>

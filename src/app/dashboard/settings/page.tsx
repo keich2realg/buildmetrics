@@ -34,6 +34,7 @@ export default function SettingsPage() {
     billing_interval?: string;
     subscription_ends_at?: string;
     subscription_status?: string;
+    is_beta?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -106,7 +107,11 @@ export default function SettingsPage() {
     );
   }
 
-  const currentPlan = profile?.plan_tier === "pro" ? "Plan Pro" : profile?.plan_tier === "artisan" ? "Plan Artisan" : "Plan Découverte (Gratuit)";
+  const currentPlan = profile?.is_beta
+    ? "Plan Bêta (5 crédits)"
+    : profile?.subscription_status === 'trial'
+    ? "Plan Pro (Essai gratuit)"
+    : profile?.plan_tier === "pro" ? "Plan Pro" : profile?.plan_tier === "artisan" ? "Plan Artisan" : "Plan Découverte (Gratuit)";
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
@@ -292,7 +297,11 @@ export default function SettingsPage() {
               <p className="text-sm font-medium text-anthracite">Forfait Actuel</p>
               <p className="text-xl font-bold text-steel mt-1 flex items-center gap-2">
                 {currentPlan}
-                {profile?.plan_tier && profile.plan_tier !== "decouverte" && (
+                {profile?.is_beta ? (
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800">Bêta</span>
+                ) : profile?.subscription_status === 'trial' ? (
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800">Essai</span>
+                ) : profile?.plan_tier && profile.plan_tier !== "decouverte" ? (
                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                     profile.subscription_status === 'cancelled'
                       ? 'bg-amber-100 text-amber-800'
@@ -300,9 +309,24 @@ export default function SettingsPage() {
                   }`}>
                     {profile.subscription_status === 'cancelled' ? 'Annulé' : 'Actif'}
                   </span>
-                )}
+                ) : null}
               </p>
-              {profile?.plan_tier && profile.plan_tier !== "decouverte" && (
+              {profile?.subscription_status === 'trial' && profile?.subscription_ends_at ? (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs font-medium text-amber-700">
+                    ⏳ Accès Pro gratuit jusqu&apos;au {new Date(profile.subscription_ends_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Abonnez-vous avant cette date pour conserver toutes les fonctionnalités Pro.
+                  </p>
+                </div>
+              ) : profile?.is_beta ? (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Accès bêta-testeur avec fonctionnalités Pro
+                  </p>
+                </div>
+              ) : profile?.plan_tier && profile.plan_tier !== "decouverte" ? (
                 <div className="mt-2 space-y-1">
                   <p className="text-xs text-muted-foreground">
                     Facturation : {profile.billing_interval === 'yearly' ? 'Annuelle' : 'Mensuelle'}
@@ -319,9 +343,9 @@ export default function SettingsPage() {
                     </p>
                   ) : null}
                 </div>
-              )}
+              ) : null}
             </div>
-            {profile?.plan_tier !== "decouverte" && profile?.customer_portal_url ? (
+            {profile?.plan_tier !== "decouverte" && profile?.customer_portal_url && profile?.subscription_status !== 'trial' ? (
               <a href={profile.customer_portal_url} target="_blank" rel="noreferrer">
                 <Button variant="outline" className="border-steel text-steel hover:bg-steel/10 whitespace-nowrap shadow-sm">
                   Gérer mon abonnement
@@ -333,7 +357,7 @@ export default function SettingsPage() {
             ) : (
               <a href="/#pricing">
                 <Button className="bg-steel hover:bg-steel-dark text-white whitespace-nowrap shadow-sm">
-                  Voir les forfaits (S'abonner)
+                  {profile?.subscription_status === 'trial' || profile?.is_beta ? "S'abonner pour conserver l'accès Pro" : "Voir les forfaits (S'abonner)"}
                   <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>

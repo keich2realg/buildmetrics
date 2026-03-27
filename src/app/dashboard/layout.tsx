@@ -27,7 +27,7 @@ export default async function DashboardLayout({
   // Fetch full profile for quota tracking
   const { data: profile } = await supabase
     .from("users")
-    .select("is_pro, plan_count, is_beta, email, plan_tier, company_name, first_name, last_name, billing_interval")
+    .select("is_pro, plan_count, is_beta, email, plan_tier, company_name, first_name, last_name, billing_interval, subscription_status, subscription_ends_at")
     .eq("id", user?.id)
     .single();
 
@@ -53,15 +53,32 @@ export default async function DashboardLayout({
   const billingInterval = profile?.billing_interval || 'monthly';
   const annualMultiplier = billingInterval === 'yearly' ? 12 : 1;
 
-  if (tier === 'pro') {
+  // ── Trial Pro expiration check ──
+  // If user is on trial Pro and the trial has expired, downgrade to decouverte
+  if (profile?.subscription_status === 'trial' && profile?.subscription_ends_at) {
+    const trialEnd = new Date(profile.subscription_ends_at);
+    if (new Date() > trialEnd) {
+      await supabase.from('users').update({ plan_tier: 'decouverte', subscription_status: 'expired', is_beta: false }).eq('id', user?.id);
+      // Force reload with decouverte
+    }
+  }
+
+  // ── Beta plan: 5 total credits (IA + manual), no free carry-over ──
+  if (profile?.is_beta) {
+    limit = 5;
+    // Count ALL projects (including manual) for beta
+    const { count: betaTotal } = await supabase.from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user?.id)
+      .neq('file_url', 'deleted');
+    currentCount = betaTotal || 0;
+  } else if (tier === 'pro') {
     limit = 100 * annualMultiplier;
   } else if (tier === 'artisan') {
     limit = 15 * annualMultiplier;
-  } else if (profile?.is_beta) {
-    limit = 10;
   }
 
-  if (tier === 'pro' || tier === 'artisan') {
+  if ((tier === 'pro' || tier === 'artisan') && !profile?.is_beta) {
     let monthlyLimit = (tier === 'pro' ? 100 : 15) * annualMultiplier;
     
     let anchorDay = 1;
@@ -206,7 +223,7 @@ export default async function DashboardLayout({
               </div>
               <div className="flex flex-col items-start overflow-hidden w-full">
                 <span className="truncate w-full text-left text-sm font-semibold text-anthracite group-hover:text-steel transition-colors">{displayName}</span>
-                <span className="text-xs text-muted-foreground">{tier === 'pro' ? "Plan Pro" : tier === 'artisan' ? "Plan Artisan" : "Plan Gratuit"}</span>
+                <span className="text-xs text-muted-foreground">{profile?.is_beta ? "Plan Bêta" : profile?.subscription_status === 'trial' ? "Plan Pro (Essai)" : tier === 'pro' ? "Plan Pro" : tier === 'artisan' ? "Plan Artisan" : "Plan Gratuit"}</span>
               </div>
               <svg className="h-4 w-4 text-muted-foreground shrink-0 ml-auto group-hover:text-steel transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />

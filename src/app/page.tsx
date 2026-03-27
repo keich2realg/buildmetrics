@@ -137,6 +137,18 @@ export default async function Home() {
                 </svg>
               </Button>
             </Link>
+            <a href="https://youtube.com" target="_blank" rel="noreferrer">
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-8 py-6 text-base border-steel/30 text-steel hover:bg-steel/5 cursor-pointer group"
+              >
+                <svg className="mr-2 h-5 w-5 text-steel group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                Voir la démo
+              </Button>
+            </a>
             <a href="#features">
               <Button
                 variant="outline"

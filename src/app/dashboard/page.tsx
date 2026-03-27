@@ -88,7 +88,7 @@ export default function DashboardPage() {
   }, []);
 
   const isAdmin = profile?.email === "cheick9892@gmail.com";
-  const limit = isAdmin || profile?.is_pro ? Infinity : (profile?.is_beta ? 10 : 3);
+  const limit = isAdmin || profile?.is_pro ? Infinity : (profile?.is_beta ? 5 : 3);
 
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
@@ -600,8 +600,8 @@ export default function DashboardPage() {
             </span>
           </Button>
 
-          {/* Bouton de Création Manuelle Exclusif PRO */}
-          {profile?.plan_tier === 'pro' ? (
+          {/* Bouton de Création Manuelle — PRO et Bêta */}
+          {(profile?.plan_tier === 'pro' || profile?.is_beta) ? (
             <Button
               size="lg"
               variant="outline"
@@ -617,7 +617,7 @@ export default function DashboardPage() {
               variant="outline"
               disabled={true}
               className="opacity-50 cursor-not-allowed bg-slate-50 text-slate-400 border-slate-200"
-              title="Création manuelle exclue aux plans PRO"
+              title="Création manuelle réservée aux plans PRO et Bêta"
              >
               <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
               Créer de zéro (Pro)
