@@ -33,6 +33,7 @@ export default function SettingsPage() {
     customer_portal_url?: string;
     billing_interval?: string;
     subscription_ends_at?: string;
+    subscription_status?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -292,8 +293,12 @@ export default function SettingsPage() {
               <p className="text-xl font-bold text-steel mt-1 flex items-center gap-2">
                 {currentPlan}
                 {profile?.plan_tier && profile.plan_tier !== "decouverte" && (
-                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800">
-                    Actif
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    profile.subscription_status === 'cancelled'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    {profile.subscription_status === 'cancelled' ? 'Annulé' : 'Actif'}
                   </span>
                 )}
               </p>
@@ -303,14 +308,13 @@ export default function SettingsPage() {
                     Facturation : {profile.billing_interval === 'yearly' ? 'Annuelle' : 'Mensuelle'}
                   </p>
                   {profile.subscription_ends_at ? (
-                    <p className="text-xs font-medium text-steel">
+                    <p className={`text-xs font-medium ${profile.subscription_status === 'cancelled' ? 'text-amber-700' : 'text-steel'}`}>
                       {(() => {
                         const endDate = new Date(profile.subscription_ends_at);
                         const formattedDate = endDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                        // If badge says 'Annulé', show access end date; otherwise show renewal date
-                        return profile.subscription_ends_at && endDate > new Date()
-                          ? `Prochain renouvellement : ${formattedDate}`
-                          : `Expiré le ${formattedDate}`;
+                        return profile.subscription_status === 'cancelled'
+                          ? `\u26a0\ufe0f Acc\u00e8s actif jusqu'au ${formattedDate}`
+                          : `Prochain renouvellement : ${formattedDate}`;
                       })()}
                     </p>
                   ) : null}

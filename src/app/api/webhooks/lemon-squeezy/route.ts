@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
           .update({ 
             plan_tier: newTier,
             billing_interval: billingInterval,
+            subscription_status: "active",
             subscription_id: event.data.id,
             subscription_ends_at: renews_at,
             customer_portal_url: customer_portal_url || null
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
         const { error } = await supabase
           .from("users")
           .update({ 
+            subscription_status: "cancelled",
             subscription_ends_at: ends_at,
             customer_portal_url: customer_portal_url || null
           })
@@ -103,6 +105,7 @@ export async function POST(request: NextRequest) {
           .update({ 
             plan_tier: "decouverte",
             billing_interval: "monthly",
+            subscription_status: "expired",
             subscription_ends_at: null,
             customer_portal_url: customer_portal_url || null
           })

@@ -23,7 +23,7 @@ export function LifecycleModals() {
       const userId = session.user.id;
       
       // Fetch initial DB state
-      const { data: user } = await supabase.from('users').select('plan_tier').eq('id', userId).single();
+      const { data: user } = await supabase.from('users').select('plan_tier, subscription_status').eq('id', userId).single();
       const { count } = await supabase.from('projects').select('*', { count: 'exact', head: true }).eq('user_id', userId);
       
       const currentTier = user?.plan_tier || 'decouverte';
@@ -118,8 +118,16 @@ export function LifecycleModals() {
           },
           (payload) => {
             const newTier = payload.new.plan_tier;
+            const newSubStatus = payload.new.subscription_status;
             const oldTier = localStorage.getItem("bm_tier") || payload.old?.plan_tier || 'decouverte';
+            const oldSubStatus = localStorage.getItem("bm_sub_status") || payload.old?.subscription_status || 'active';
             
+            // Detect cancellation via subscription_status change
+            if (newSubStatus === 'cancelled' && oldSubStatus !== 'cancelled') {
+              setModal("cancelled");
+              localStorage.setItem("bm_sub_status", newSubStatus);
+            }
+
             if (newTier !== oldTier) {
               setTier(newTier);
               const isUpgrade = 
@@ -136,6 +144,9 @@ export function LifecycleModals() {
               }
               localStorage.setItem("bm_tier", newTier);
             }
+
+            // Also update sub status
+            if (newSubStatus) localStorage.setItem("bm_sub_status", newSubStatus);
           }
         )
         .subscribe();
