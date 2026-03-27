@@ -238,12 +238,12 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-4 md:hidden flex justify-between items-center bg-white border-b border-border/60 print:hidden relative z-10">
-            <div className="flex items-center gap-2 text-anthracite">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="sticky top-0 z-50 p-3 md:hidden flex justify-between items-center bg-white/95 backdrop-blur-lg border-b border-border/60 print:hidden">
+            <a href="/" className="flex items-center gap-2 text-anthracite">
               <div className="flex h-7 w-7 items-center justify-center rounded bg-steel text-white font-bold text-xs shadow-sm">BM</div>
               <span className="font-bold text-lg">BuildMetrics</span>
-            </div>
+            </a>
             <MobileNav tier={tier} displayName={displayName} currentCount={currentCount} limit={limit} progressPercent={progressPercent} />
         </div>
         {children}

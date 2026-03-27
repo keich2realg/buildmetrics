@@ -266,9 +266,9 @@ export function ScaleCalibration({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="!max-w-[95vw] !w-[95vw] !h-[95vh] sm:!max-w-[95vw] p-0 flex flex-col overflow-hidden">
+        <DialogContent className="!max-w-[100vw] !w-[100vw] !h-[100dvh] sm:!max-w-[95vw] sm:!w-[95vw] sm:!h-[95vh] p-0 flex flex-col overflow-hidden rounded-none sm:rounded-lg">
           {/* Header */}
-          <DialogHeader className="px-6 pt-5 pb-3 border-b border-border/60 shrink-0">
+          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-5 pb-3 border-b border-border/60 shrink-0">
             <DialogTitle className="text-anthracite flex items-center gap-2">
               <svg
                 className="h-5 w-5 text-steel"
@@ -293,23 +293,23 @@ export function ScaleCalibration({
           </DialogHeader>
 
           {/* Toolbar: Zoom controls + Step indicators */}
-          <div className="flex items-center justify-between px-6 py-2 bg-secondary/30 border-b border-border/40 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-2 gap-2 bg-secondary/30 border-b border-border/40 shrink-0">
             {/* Step indicators */}
-            <div className="flex items-center gap-5 text-sm">
-              <div className="flex items-center gap-1.5">
-                <div className={`h-2.5 w-2.5 rounded-full ${pointA ? "bg-steel" : "bg-border"}`} />
+            <div className="flex items-center gap-3 sm:gap-5 text-xs sm:text-sm">
+              <div className="flex items-center gap-1">
+                <div className={`h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full ${pointA ? "bg-steel" : "bg-border"}`} />
                 <span className={pointA ? "text-steel font-medium" : "text-muted-foreground"}>
-                  {pointA ? "Point A ✓" : "1. Point A"}
+                  {pointA ? "A ✓" : "1. Point A"}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className={`h-2.5 w-2.5 rounded-full ${pointB ? "bg-rose-500" : "bg-border"}`} />
+              <div className="flex items-center gap-1">
+                <div className={`h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full ${pointB ? "bg-rose-500" : "bg-border"}`} />
                 <span className={pointB ? "text-rose-600 font-medium" : "text-muted-foreground"}>
-                  {pointB ? "Point B ✓" : "2. Point B"}
+                  {pointB ? "B ✓" : "2. Point B"}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className={`h-2.5 w-2.5 rounded-full ${pointA && pointB ? "bg-border animate-pulse" : "bg-border"}`} />
+              <div className="flex items-center gap-1">
+                <div className={`h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full ${pointA && pointB ? "bg-border animate-pulse" : "bg-border"}`} />
                 <span className="text-muted-foreground">3. Distance</span>
               </div>
             </div>
@@ -322,7 +322,7 @@ export function ScaleCalibration({
                 size="sm"
                 onClick={handleZoomOut}
                 disabled={zoom <= MIN_ZOOM}
-                className="h-7 w-7 p-0 cursor-pointer"
+                className="h-8 w-8 sm:h-7 sm:w-7 p-0 cursor-pointer"
                 title="Dézoomer"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -343,23 +343,12 @@ export function ScaleCalibration({
                 size="sm"
                 onClick={handleZoomIn}
                 disabled={zoom >= MAX_ZOOM}
-                className="h-7 w-7 p-0 cursor-pointer"
+                className="h-8 w-8 sm:h-7 sm:w-7 p-0 cursor-pointer"
                 title="Zoomer"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-              </Button>
-              <div className="w-px h-5 bg-border mx-1" />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleZoomReset}
-                className="h-7 px-2 text-xs cursor-pointer"
-                title="Réinitialiser la vue"
-              >
-                Réinitialiser
               </Button>
             </div>
           </div>
@@ -404,7 +393,7 @@ export function ScaleCalibration({
 
           {/* Distance input panel — appears when both points placed */}
           {pointA && pointB && (
-            <div className="flex items-end gap-3 px-6 py-3 bg-steel/5 border-t border-steel/20 shrink-0 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-3 px-4 sm:px-6 py-3 bg-steel/5 border-t border-steel/20 shrink-0 animate-in fade-in slide-in-from-bottom-2 duration-200">
               <div className="flex-1 space-y-1.5">
                 <Label className="text-sm font-medium text-anthracite">
                   Distance entre A et B :
@@ -417,11 +406,11 @@ export function ScaleCalibration({
                     placeholder="5.00"
                     value={distance}
                     onChange={(e) => setDistance(e.target.value)}
-                    className="flex-1 h-9 max-w-[200px]"
+                    className="flex-1 h-11 sm:h-9 text-base sm:text-sm"
                     autoFocus
                   />
                   <Select value={unit} onValueChange={(v) => v && setUnit(v)}>
-                    <SelectTrigger className="w-20 h-9">
+                    <SelectTrigger className="w-20 h-11 sm:h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -431,13 +420,13 @@ export function ScaleCalibration({
                   </Select>
                 </div>
               </div>
-              <div className="flex gap-2 pb-0.5">
+              <div className="flex gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={handleReset}
-                  className="h-9 cursor-pointer"
+                  className="h-11 sm:h-9 flex-1 sm:flex-none cursor-pointer"
                 >
                   Réinitialiser
                 </Button>
@@ -446,9 +435,9 @@ export function ScaleCalibration({
                   size="sm"
                   onClick={handleValidate}
                   disabled={!distance}
-                  className="h-9 bg-steel hover:bg-steel-dark text-white cursor-pointer"
+                  className="h-11 sm:h-9 flex-1 sm:flex-none bg-steel hover:bg-steel-dark text-white cursor-pointer"
                 >
-                  ✓ Valider la calibration
+                  ✓ Valider
                 </Button>
               </div>
             </div>

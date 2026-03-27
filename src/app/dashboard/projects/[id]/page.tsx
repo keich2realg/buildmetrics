@@ -385,16 +385,16 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
         </div>
 
       <div className="bg-white border border-border/40 shadow-sm rounded-xl overflow-hidden print:hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full text-xs sm:text-sm text-left min-w-[500px]">
             <thead className="bg-secondary/50 text-muted-foreground border-b border-border/60">
               <tr>
-                <th className="px-4 py-3 font-medium">Désignation</th>
-                <th className="px-4 py-3 font-medium w-32">Quantité</th>
-                <th className="px-4 py-3 font-medium w-24">Unité</th>
-                <th className="px-4 py-3 font-medium w-32">PU HT (€)</th>
-                <th className="px-4 py-3 font-medium w-32 text-right">Montant HT</th>
-                <th className="px-4 py-3 font-medium w-12 text-center print:hidden"></th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium">Désignation</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-20 sm:w-32">Qté</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-16 sm:w-24">Unité</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-20 sm:w-32">PU HT (€)</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 font-medium w-24 sm:w-32 text-right">Montant HT</th>
+                <th className="px-1 sm:px-4 py-2 sm:py-3 font-medium w-10 sm:w-12 text-center print:hidden"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
@@ -402,14 +402,14 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
                 const montant = (lot.quantite || 0) * (lot.prix_unitaire_ht || 0);
                 return (
                   <tr key={lot.id} className="group hover:bg-secondary/20 transition-colors">
-                    <td className="px-4 py-3 font-medium text-anthracite">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3 font-medium text-anthracite">
                       <Input
                         value={lot.designation}
                         onChange={(e) => setLots(lots.map(l => l.id === lot.id ? { ...l, designation: e.target.value } : l))}
-                        className="h-8 shadow-none border-transparent focus-visible:border-primary/30"
+                        className="h-8 text-xs sm:text-sm shadow-none border-transparent focus-visible:border-primary/30"
                       />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3">
                       <Input
                         type="number"
                         min="0"
