@@ -72,6 +72,26 @@ export default async function DashboardLayout({
       .eq('user_id', user?.id)
       .neq('file_url', 'deleted');
     currentCount = betaTotal || 0;
+
+    // ── Auto-graduation: Beta -> Pro Trial 1 month ──
+    if (currentCount >= 5) {
+      const trialEnd = new Date();
+      trialEnd.setMonth(trialEnd.getMonth() + 1);
+      await supabase.from('users').update({
+        is_beta: false,
+        plan_tier: 'pro',
+        subscription_status: 'trial',
+        subscription_ends_at: trialEnd.toISOString(),
+      }).eq('id', user?.id);
+      
+      // Update local state for immediate reflected render
+      if (profile) {
+        (profile as any).is_beta = false;
+        (profile as any).plan_tier = 'pro';
+        (profile as any).subscription_status = 'trial';
+        (profile as any).subscription_ends_at = trialEnd.toISOString();
+      }
+    }
   } else if (tier === 'pro') {
     limit = 100 * annualMultiplier;
   } else if (tier === 'artisan') {
@@ -172,7 +192,7 @@ export default async function DashboardLayout({
             </svg>
             Projets & Devis
           </Link>
-          {tier === 'pro' ? (
+          {(tier === 'pro' || profile?.is_beta) ? (
             <Link href="/dashboard/materials" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-muted-foreground transition-all duration-300 ease-out hover:translate-x-1 hover:bg-secondary/50 hover:text-anthracite active:scale-[0.98]">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.25 2.25 0 0 1-.75 1.622M4.5 9.878A2.25 2.25 0 0 0 5.25 11.5m13.5-1.622c-.235.083-.487.128-.75.128H5.25c-.263 0-.515-.045-.75-.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
@@ -199,7 +219,7 @@ export default async function DashboardLayout({
             </div>
             <p className="text-[10px] text-muted-foreground mt-1.5 leading-snug">
               {profile?.is_beta 
-                ? "Bêta : Plafond mensuel de devis." 
+                ? "Bêta : Limite totale de 5 devis." 
                 : limit === 100 
                   ? "Vous profitez des analyses Pro (100 max)." 
                   : "Passez en Pro pour débloquer de plus grands volumes."}

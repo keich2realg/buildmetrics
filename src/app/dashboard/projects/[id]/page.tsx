@@ -320,7 +320,7 @@ export default function EditProjectPage(props: { params: Promise<{ id: string }>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Sauvegarder
           </Button>
-          {profile?.plan_tier === 'pro' && (
+          {(profile?.plan_tier === 'pro' || profile?.is_beta) && (
             <Button onClick={handleExportExcel} variant="outline" className="gap-2 bg-green-50 text-green-700 hover:bg-green-100 border-green-200">
               <Download className="w-4 h-4" />
               Excel
