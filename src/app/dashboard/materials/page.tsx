@@ -24,7 +24,7 @@ export default function MaterialsPage() {
   async function loadMaterials() {
     setIsLoading(true);
     const profile: any = await getUserProfile();
-    if (profile && profile.plan_tier !== 'pro' && profile.email !== 'cheick9892@gmail.com') {
+    if (profile && profile.plan_tier !== 'pro' && !profile.is_beta && profile.email !== 'cheick9892@gmail.com') {
       window.location.href = '/dashboard';
       return;
     }

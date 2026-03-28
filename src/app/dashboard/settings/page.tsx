@@ -180,7 +180,7 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2 sm:col-span-2 pt-4 border-t border-border/40 mt-4">
                 <Label className="text-base font-semibold text-anthracite block mb-2">Identité Visuelle</Label>
-                {profile?.plan_tier === "decouverte" ? (
+                {(profile?.plan_tier === "decouverte" && !profile?.is_beta) ? (
                   <div className="bg-secondary/30 border border-border/50 rounded-lg p-6 flex flex-col items-center justify-center text-center">
                     <div className="bg-white px-3 py-2 rounded-full shadow-sm mb-3">
                       <span className="text-xl">🔒</span>

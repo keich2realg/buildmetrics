@@ -5,11 +5,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams, useRouter } from "next/navigation";
+import { enrollInBeta } from "@/app/dashboard/actions";
 
 export function LifecycleModals() {
   const [modal, setModal] = useState<"welcome" | "upgraded" | "cancelled" | "expiry" | "beta_welcome" | "beta_goodbye" | null>(null);
   const [mounted, setMounted] = useState(false);
   const [tier, setTier] = useState<string>("decouverte");
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -171,6 +175,26 @@ export function LifecycleModals() {
       cleanupFunc();
     };
   }, []);
+
+  // ── Beta Enrollment from Query Param ──
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const checkBetaJoin = async () => {
+      if (searchParams.get("beta") === "join") {
+        const result = await enrollInBeta();
+        if (result.success) {
+          setModal("beta_welcome");
+          localStorage.setItem("bm_beta_welcome", "true");
+          // Clean URL
+          const newPath = window.location.pathname;
+          router.replace(newPath);
+        }
+      }
+    };
+    
+    checkBetaJoin();
+  }, [mounted, searchParams, router]);
 
   if (!mounted || !modal) return null;
 

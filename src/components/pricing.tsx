@@ -164,7 +164,7 @@ export function Pricing({ urls, isLoggedIn }: { urls?: any, isLoggedIn?: boolean
                 </ul>
               </CardContent>
               <CardFooter className="pt-2 pb-8">
-                <Link href="/login" className="w-full">
+                <Link href="/login?beta=join" className="w-full">
                   <Button className="w-full cursor-pointer py-6 font-semibold text-base shadow-md bg-purple-600 hover:bg-purple-700 text-white">
                     Rejoindre la bêta gratuitement
                   </Button>

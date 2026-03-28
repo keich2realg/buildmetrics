@@ -263,3 +263,29 @@ export async function createManualProject(formData: FormData) {
 
   return { success: true, projectId: project?.id };
 }
+
+export async function enrollInBeta() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Non authentifié" };
+  }
+
+  // Beta deadline: April 16, 2026
+  const BETA_DEADLINE = new Date('2026-04-16T23:59:59');
+  if (new Date() > BETA_DEADLINE) {
+    return { error: "La période d'inscription à la bêta est terminée." };
+  }
+
+  const { error } = await supabase
+    .from("users")
+    .update({ is_beta: true })
+    .eq("id", user.id);
+
+  if (error) {
+    return { error: `Erreur lors de l'inscription : ${error.message}` };
+  }
+
+  return { success: true };
+}
