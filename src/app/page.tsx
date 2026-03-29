@@ -137,7 +137,7 @@ export default async function Home() {
                 </svg>
               </Button>
             </Link>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer">
+            <a href="https://youtu.be/jeMhloRC3Hk?si=Mq4kjAg4R7oTF0j0" target="_blank" rel="noreferrer">
               <Button
                 variant="outline"
                 size="lg"
