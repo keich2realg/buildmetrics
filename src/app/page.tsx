@@ -137,8 +137,9 @@ export default async function Home() {
                 </svg>
               </Button>
             </Link>
-            <a href="https://youtu.be/jeMhloRC3Hk?si=Mq4kjAg4R7oTF0j0" target="_blank" rel="noreferrer">
+            <a href="https://youtu.be/enQTWl8bD1Y" target="_blank" rel="noreferrer">
               <Button
+
                 variant="outline"
                 size="lg"
                 className="px-8 py-6 text-base border-steel/30 text-steel hover:bg-steel/5 cursor-pointer group"
