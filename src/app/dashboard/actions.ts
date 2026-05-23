@@ -272,8 +272,8 @@ export async function enrollInBeta() {
     return { error: "Non authentifié" };
   }
 
-  // Beta deadline: April 16, 2026
-  const BETA_DEADLINE = new Date('2026-04-16T23:59:59');
+  // Beta deadline: June 22, 2026
+  const BETA_DEADLINE = new Date('2026-06-22T23:59:59');
   if (new Date() > BETA_DEADLINE) {
     return { error: "La période d'inscription à la bêta est terminée." };
   }

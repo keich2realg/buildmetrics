@@ -67,8 +67,8 @@ export function Pricing({ urls, isLoggedIn }: { urls?: any, isLoggedIn?: boolean
     },
   ];
 
-  // Beta deadline: April 16, 2026
-  const BETA_DEADLINE = new Date('2026-04-16T23:59:59');
+  // Beta deadline: June 22, 2026
+  const BETA_DEADLINE = new Date('2026-06-22T23:59:59');
   const now = new Date();
   const isBetaOpen = now < BETA_DEADLINE;
   const daysLeft = isBetaOpen ? Math.ceil((BETA_DEADLINE.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
